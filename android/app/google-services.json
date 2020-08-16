@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "692820828819",
+    "firebase_url": "https://my-quizapp-dde67.firebaseio.com",
+    "project_id": "my-quizapp-dde67",
+    "storage_bucket": "my-quizapp-dde67.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:692820828819:android:5a7fd85d9b8e10146f2366",
+        "android_client_info": {
+          "package_name": "com.quizzie.joart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "692820828819-a89qsnlam7l9erfofg366bbe5qiub9bv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABkdKqWtGf2wB0i3p3he6ZnZa_TcYhQQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "692820828819-a89qsnlam7l9erfofg366bbe5qiub9bv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
