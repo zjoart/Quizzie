@@ -21,8 +21,6 @@ class _QuizPageState extends State<QuizPage> {
   bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
 
- 
-
   void _loadInterstitialAd() {
     _interstitialAd.load();
   }
@@ -87,10 +85,17 @@ class _QuizPageState extends State<QuizPage> {
   final List<Results> results;
   _QuizPageState(this.results);
 
-  Color colortoshow = Colors.orange;
   Color right = Colors.green;
-  Color wrong = Colors.red;
-  Color btnColor = Colors.white;
+  Color btnColor1 = Colors.orangeAccent;
+  Color btnColor2 = Colors.orangeAccent;
+  Color btnColor3 = Colors.orangeAccent;
+  Color btnColor4 = Colors.orangeAccent;
+
+  Color wrong1 = Colors.red;
+  Color wrong2 = Colors.red;
+  Color wrong3 = Colors.red;
+  Color wrong4 = Colors.red;
+
   int marks = 0;
 
   int timer = 30;
@@ -101,7 +106,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void initState() {
     starttimer();
-   
+
     _isInterstitialAdReady = false;
 
     _interstitialAd = InterstitialAd(
@@ -173,7 +178,7 @@ class _QuizPageState extends State<QuizPage> {
                   ],
                 ));
       },
-          child: Scaffold(
+      child: Scaffold(
         key: _key,
         body: Column(
           children: <Widget>[
@@ -187,7 +192,7 @@ class _QuizPageState extends State<QuizPage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.orange[500],
+                    Colors.orangeAccent,
                     Colors.orange,
                   ],
                 )),
@@ -250,9 +255,10 @@ class _QuizPageState extends State<QuizPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                ...options.map(
-                  (option) => choiceButton("a", option),
-                )
+                choiceButton(options[0]),
+                choiceButton1(options[1]),
+                choiceButton2(options[2]),
+                choiceButton3(options[3]),
               ],
             )),
             Expanded(
@@ -274,7 +280,7 @@ class _QuizPageState extends State<QuizPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.orange[500],
+                            Colors.orangeAccent,
                             Colors.orange,
                           ],
                         )),
@@ -300,73 +306,204 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   bool clickedButton = false;
-  bool isCorrect = false;
-  void checkanswer(String b, String k) {
-    if (clickedButton == false) {
-      if (b == (widget.results[_currentIndex].correctAnswer)) {
-        marks = marks + 5;
-        print(' correct');
-        setState(() {
-          colortoshow = right;
-          clickedButton = true;
-          isCorrect = true;
-        });
-      } else {
-        print(' incorrect');
-        setState(() {
-          colortoshow = wrong;
-          clickedButton = true;
-        });
-      }
-    }
-    setState(() {
-      btnColor = colortoshow;
-      canceltimer = true;
-    });
-  }
-
   void _nextSubmit() {
     canceltimer = false;
     timer = 30;
-
     setState(() {
-      if (_currentIndex < (widget.results.length - 1)) {
-        _currentIndex++;
-      
-      }
-       else { if (_isRewardedAdReady) {
+      if (_currentIndex == (widget.results.length - 1)) {
+        if (_isRewardedAdReady) {
           RewardedVideoAd.instance.show();
           return;
         }
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => ResultPage(marks: marks),
         ));
-       }
+      } else if (_currentIndex < (widget.results.length - 1)) {
+        btnColor1 = Colors.orangeAccent;
+        btnColor2 = Colors.orangeAccent;
+        btnColor3 = Colors.orangeAccent;
+        btnColor4 = Colors.orangeAccent;
+        _currentIndex++;
+        clickedButton = false;
+      } else {
+        _currentIndex += 0;
+      }
       if (_currentIndex > 15) {
         _loadInterstitialAd();
         if (_currentIndex > 15) if (_isInterstitialAdReady) {
           _interstitialAd.show();
+          return;
         }
       }
-      btnColor = Colors.white;
     });
     starttimer();
   }
 
-  Widget choiceButton(String k, String b) {
+  Widget choiceButton(String b) {
     return Padding(
       padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
       child: Card(
         elevation: 3,
         child: MaterialButton(
-          onPressed: () => checkanswer(b, k),
+          onPressed: () {
+            if (clickedButton == false) {
+              if (b == (widget.results[_currentIndex].correctAnswer)) {
+                marks = marks + 5;
+                print('correct');
+                setState(() {
+                  clickedButton = true;
+                  btnColor1 = right;
+                });
+              } else {
+                print(' incorrect');
+                setState(() {
+                  clickedButton = true;
+                  btnColor1 = wrong1;
+                });
+              }
+            }
+            setState(() {
+              canceltimer = true;
+            });
+            Timer(Duration(seconds: 1), _nextSubmit);
+          },
           child: Text(
             b,
             style: TextStyle(
               fontSize: 20.0,
+              color: Colors.white,
             ),
           ),
-          color: btnColor,
+          color: btnColor1,
+          height: 70.0,
+          //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        ),
+      ),
+    );
+  }
+
+  Widget choiceButton1(String b) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
+      child: Card(
+        elevation: 3,
+        child: MaterialButton(
+          onPressed: () {
+            if (clickedButton == false) {
+              if (b == (widget.results[_currentIndex].correctAnswer)) {
+                marks = marks + 5;
+                print('correct');
+                setState(() {
+                  clickedButton = true;
+                  btnColor2 = right;
+                });
+              } else {
+                print(' incorrect');
+                setState(() {
+                  clickedButton = true;
+                  btnColor2 = wrong2;
+                });
+              }
+            }
+            setState(() {
+              canceltimer = true;
+            });
+            Timer(Duration(seconds: 1), _nextSubmit);
+          },
+          child: Text(
+            b,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
+          ),
+          color: btnColor2,
+          height: 70.0,
+          //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        ),
+      ),
+    );
+  }
+
+  Widget choiceButton2(String b) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
+      child: Card(
+        elevation: 3,
+        child: MaterialButton(
+          onPressed: () {
+            if (clickedButton == false) {
+              if (b == (widget.results[_currentIndex].correctAnswer)) {
+                marks = marks + 5;
+                print('correct');
+                setState(() {
+                  clickedButton = true;
+                  btnColor3 = right;
+                });
+              } else {
+                print(' incorrect');
+                setState(() {
+                  clickedButton = true;
+                  btnColor3 = wrong3;
+                });
+              }
+            }
+            setState(() {
+              canceltimer = true;
+            });
+            Timer(Duration(seconds: 1), _nextSubmit);
+          },
+          child: Text(
+            b,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
+          ),
+          color: btnColor3,
+          height: 70.0,
+          //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        ),
+      ),
+    );
+  }
+
+  Widget choiceButton3(String b) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
+      child: Card(
+        elevation: 3,
+        child: MaterialButton(
+          onPressed: () {
+            if (clickedButton == false) {
+              if (b == (widget.results[_currentIndex].correctAnswer)) {
+                marks = marks + 5;
+                print('correct');
+                setState(() {
+                  clickedButton = true;
+                  btnColor4 = right;
+                });
+              } else {
+                print('incorrect');
+                setState(() {
+                  clickedButton = true;
+                  btnColor4 = wrong4;
+                });
+              }
+            }
+            setState(() {
+              canceltimer = true;
+            });
+            Timer(Duration(seconds: 1), _nextSubmit);
+          },
+          child: Text(
+            b,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
+          ),
+          color: btnColor4,
           height: 70.0,
           //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),

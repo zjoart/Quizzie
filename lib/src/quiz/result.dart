@@ -1,6 +1,7 @@
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:joart/src/ads/helper.dart';
+import 'package:joart/src/resources/apigetter.dart';
 
 
 // ignore: must_be_immutable
@@ -15,7 +16,7 @@ class _ResultPageState extends State<ResultPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   BannerAd _bannerAd;
-  BannerAd _ibannerAd;
+  
   InterstitialAd _interstitialAd;
   bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
@@ -23,14 +24,10 @@ class _ResultPageState extends State<ResultPage> {
   void _loadBannerAd() {
     _bannerAd
       ..load()
-      ..show(anchorType: AnchorType.bottom);
-  }
-
-  void _iloadBannerAd() {
-    _ibannerAd
-      ..load()
       ..show(anchorType: AnchorType.top);
   }
+
+ 
 
   void _loadInterstitialAd() {
     _interstitialAd.load();
@@ -105,13 +102,10 @@ class _ResultPageState extends State<ResultPage> {
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.fullBanner,
     );
-    _ibannerAd = BannerAd(
-      adUnitId: AdManager.bannerAdUnitId,
-      size: AdSize.smartBanner,
-    );
+   
 
     _loadBannerAd();
-    _iloadBannerAd();
+   
     _isInterstitialAdReady = false;
 
     _interstitialAd = InterstitialAd(
@@ -147,104 +141,108 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            flex: 8,
-            child: Material(
-              elevation: 5.0,
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Material(
-                      child: Container(
-                        width: width,
-                        height: 300.0,
-                        child: ClipRect(
-                          child: Image(
-                            image: AssetImage(
-                              image,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              flex: 8,
+              child: Material(
+                elevation: 5.0,
+                child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Material(
+                        child: Container(
+                          width: width,
+                          height: 300.0,
+                          child: ClipRect(
+                            child: Image(
+                              image: AssetImage(
+                                image,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 15.0,
-                        ),
-                        child: Center(
-                          child: Text(
-                            message,
-                            style: TextStyle(
-                              fontSize: 25.0,
-                              fontFamily: "Montserrat-Medium",
-                            ),
+                      Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 15.0,
                           ),
-                        )),
-                  ],
+                          child: Center(
+                            child: Text(
+                              message,
+                              style: TextStyle(
+                                fontSize: 25.0,
+                                fontFamily: "Montserrat-Medium",
+                              ),
+                            ),
+                          )),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                OutlineButton(
-                  onPressed: () async {
-                    _loadInterstitialAd();
-                    if (_isInterstitialAdReady) {
-                      _interstitialAd.show();
-                      return;
-                    }
-                   Navigator.of(context).pushNamed('/home');
-                  },
-                  child: Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: 18.0,
+            Expanded(
+              flex: 4,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  OutlineButton(
+                    onPressed: () async {
+                      _loadInterstitialAd();
+                      if (_isInterstitialAdReady) {
+                        _interstitialAd.show();
+                        return;
+                      }
+                     Navigator.of(context).pushNamed('/home');
+                    },
+                    child: Text(
+                      "Home",
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
                     ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  borderSide: BorderSide(width: 3.0, color: Colors.orange),
-                  splashColor: Colors.orangeAccent,
-                ),
-                SizedBox(
-                  width: 30,
-                ),
-                OutlineButton(
-                  onPressed: () {
-                    if (_isRewardedAdReady) {
-                      RewardedVideoAd.instance.show();
-                      return;
-                    }
-                     Navigator.of(context).pushNamed('/splash');
-                  },
-                  child: Text(
-                    "Share results",
-                    style: TextStyle(
-                      fontSize: 18.0,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
                     ),
+                    borderSide: BorderSide(width: 3.0, color: Colors.orange),
+                    splashColor: Colors.orangeAccent,
                   ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
+                  SizedBox(
+                    width: 30,
                   ),
-                  borderSide: BorderSide(width: 3.0, color: Colors.orange),
-                  splashColor: Colors.orangeAccent,
-                ),
-              ],
-            ),
-          )
-        ],
+                  OutlineButton(
+                    onPressed: () {
+                      if (_isRewardedAdReady) {
+                        RewardedVideoAd.instance.show();
+                        return;
+                      }
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => QuizApi()));
+                    },
+                    child: Text(
+                      "Reset Quiz",
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    borderSide: BorderSide(width: 3.0, color: Colors.orange),
+                    splashColor: Colors.orangeAccent,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
