@@ -21,11 +21,7 @@ class _QuizPageState extends State<QuizPage> {
   bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
 
-  void _loadBannerAd() {
-    _bannerAd
-      ..load()
-      ..show(anchorType: AnchorType.bottom);
-  }
+ 
 
   void _loadInterstitialAd() {
     _interstitialAd.load();
@@ -105,12 +101,7 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void initState() {
     starttimer();
-    _bannerAd = BannerAd(
-      adUnitId: AdManager.bannerAdUnitId,
-      size: AdSize.smartBanner,
-    );
-
-    _loadBannerAd();
+   
     _isInterstitialAdReady = false;
 
     _interstitialAd = InterstitialAd(
@@ -161,127 +152,149 @@ class _QuizPageState extends State<QuizPage> {
     Results question = widget.results[_currentIndex];
     final List<dynamic> options = question.allAnswers;
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      key: _key,
-      body: Column(
-        children: <Widget>[
-          ClipPath(
-            clipper: CircularClipper(),
-            child: Container(
-              width: width,
-              height: 370,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.orange[500],
-                  Colors.orange,
-                ],
-              )),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                // mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(padding: EdgeInsets.all(50.0)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        new Text(
-                          "Question ${_currentIndex + 1} of ${results.length}",
-                          style: new TextStyle(
-                              fontSize: 25.0, color: Colors.white),
-                        ),
-                        SizedBox(
-                          width: 180,
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            child: Center(
-                              child: Text(
-                                showtimer,
-                                style: TextStyle(
-                                    fontSize: 30.0,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white),
+    return WillPopScope(
+      onWillPop: () {
+        return showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text(
+                    "Quizzie",
+                  ),
+                  content: Text("You Can't Go Back At This Stage."),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Ok',
+                      ),
+                    )
+                  ],
+                ));
+      },
+          child: Scaffold(
+        key: _key,
+        body: Column(
+          children: <Widget>[
+            ClipPath(
+              clipper: CircularClipper(),
+              child: Container(
+                width: width,
+                height: 370,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.orange[500],
+                    Colors.orange,
+                  ],
+                )),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(padding: EdgeInsets.all(50.0)),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          new Text(
+                            "Question ${_currentIndex + 1} of ${results.length}",
+                            style: new TextStyle(
+                                fontSize: 25.0, color: Colors.white),
+                          ),
+                          SizedBox(
+                            width: 180,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              child: Center(
+                                child: Text(
+                                  showtimer,
+                                  style: TextStyle(
+                                      fontSize: 30.0,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(padding: EdgeInsets.all(25.0)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 30, right: 30),
-                    child: Text(
-                      widget.results[_currentIndex].question,
-                      softWrap: true,
-                      style: width > 800
-                          ? _questionStyle.copyWith(fontSize: 30.0)
-                          : _questionStyle.copyWith(fontSize: 20.0),
+                    Padding(padding: EdgeInsets.all(25.0)),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: Text(
+                        widget.results[_currentIndex].question,
+                        softWrap: true,
+                        style: width > 800
+                            ? _questionStyle.copyWith(fontSize: 30.0)
+                            : _questionStyle.copyWith(fontSize: 20.0),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Container(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              ...options.map(
-                (option) => choiceButton("a", option),
-              )
-            ],
-          )),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (clickedButton = true) _nextSubmit();
-                  });
-                },
-                child: Container(
-                  width: width,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(30)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.orange[500],
-                          Colors.orange,
-                        ],
-                      )),
-                  child: Center(
-                    child: Text(
-                      _currentIndex == (widget.results.length - 1)
-                          ? "Submit"
-                          : "Next",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+            SizedBox(
+              height: 30,
+            ),
+            Container(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                ...options.map(
+                  (option) => choiceButton("a", option),
+                )
+              ],
+            )),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (clickedButton = true) _nextSubmit();
+                    });
+                  },
+                  child: Container(
+                    width: width,
+                    height: 60,
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(30)),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.orange[500],
+                            Colors.orange,
+                          ],
+                        )),
+                    child: Center(
+                      child: Text(
+                        _currentIndex == (widget.results.length - 1)
+                            ? "Submit"
+                            : "Next",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -319,23 +332,23 @@ class _QuizPageState extends State<QuizPage> {
     setState(() {
       if (_currentIndex < (widget.results.length - 1)) {
         _currentIndex++;
-      } else {
-        if (_isRewardedAdReady) {
-          RewardedVideoAd.instance.show();
-        }
-         Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => ResultPage(marks: marks),
-          ));
+      
       }
-      btnColor = Colors.white;
-    });
-    if (_currentIndex > 10) _loadInterstitialAd();
-    setState(() {
+       else { if (_isRewardedAdReady) {
+          RewardedVideoAd.instance.show();
+          return;
+        }
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ResultPage(marks: marks),
+        ));
+       }
       if (_currentIndex > 15) {
-        if (_isInterstitialAdReady) {
+        _loadInterstitialAd();
+        if (_currentIndex > 15) if (_isInterstitialAdReady) {
           _interstitialAd.show();
         }
       }
+      btnColor = Colors.white;
     });
     starttimer();
   }
@@ -354,8 +367,6 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ),
           color: btnColor,
-          splashColor: Colors.orangeAccent,
-          highlightColor: Colors.orangeAccent,
           height: 70.0,
           //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),

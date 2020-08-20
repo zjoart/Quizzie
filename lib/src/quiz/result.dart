@@ -2,23 +2,20 @@ import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:joart/src/ads/helper.dart';
 
-import 'home.dart';
-
-
 
 // ignore: must_be_immutable
 class ResultPage extends StatefulWidget {
   int marks;
-  ResultPage ({Key key , @required this.marks}) : super(key : key);
+  ResultPage({Key key, @required this.marks}) : super(key: key);
   @override
   _ResultPageState createState() => _ResultPageState(marks);
 }
 
-class _ResultPageState extends State<ResultPage > {
+class _ResultPageState extends State<ResultPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-BannerAd _bannerAd;
-BannerAd _ibannerAd;
+  BannerAd _bannerAd;
+  BannerAd _ibannerAd;
   InterstitialAd _interstitialAd;
   bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
@@ -28,6 +25,7 @@ BannerAd _ibannerAd;
       ..load()
       ..show(anchorType: AnchorType.bottom);
   }
+
   void _iloadBannerAd() {
     _ibannerAd
       ..load()
@@ -93,13 +91,13 @@ BannerAd _ibannerAd;
   @override
   void initState() {
     super.initState();
-    if(marks < 20){
+    if (marks < 20) {
       image = images[2];
       message = "You Should Try Harder..\n" + "You Scored $marks";
-    }else if(marks < 35){
+    } else if (marks < 35) {
       image = images[1];
       message = "You Can Do Better..\n" + "You Scored $marks";
-    }else{
+    } else {
       image = images[0];
       message = "You Did Very Well..\n" + "You Scored $marks";
     }
@@ -107,7 +105,7 @@ BannerAd _ibannerAd;
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.fullBanner,
     );
-     _ibannerAd = BannerAd(
+    _ibannerAd = BannerAd(
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.smartBanner,
     );
@@ -146,12 +144,9 @@ BannerAd _ibannerAd;
   String message;
   String image;
 
- 
-
-  
   @override
   Widget build(BuildContext context) {
-     double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -177,24 +172,23 @@ BannerAd _ibannerAd;
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 5.0,
-                        horizontal: 15.0,
-                      ),
-                      child: Center(
-                      child: Text(
-                        message,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          fontFamily: "Montserrat-Medium",
+                        padding: EdgeInsets.symmetric(
+                          vertical: 5.0,
+                          horizontal: 15.0,
                         ),
-                      ),
-                    )
-                    ),
+                        child: Center(
+                          child: Text(
+                            message,
+                            style: TextStyle(
+                              fontSize: 25.0,
+                              fontFamily: "Montserrat-Medium",
+                            ),
+                          ),
+                        )),
                   ],
                 ),
               ),
-            ),            
+            ),
           ),
           Expanded(
             flex: 4,
@@ -203,14 +197,12 @@ BannerAd _ibannerAd;
               children: <Widget>[
                 OutlineButton(
                   onPressed: () async {
-                   _loadInterstitialAd();
-                if (_isInterstitialAdReady) {
-                  _interstitialAd.show();
-               
-                }
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => QuizzHome(),
-                    ));
+                    _loadInterstitialAd();
+                    if (_isInterstitialAdReady) {
+                      _interstitialAd.show();
+                      return;
+                    }
+                   Navigator.of(context).pushNamed('/home');
                   },
                   child: Text(
                     "Continue",
@@ -225,12 +217,16 @@ BannerAd _ibannerAd;
                   borderSide: BorderSide(width: 3.0, color: Colors.orange),
                   splashColor: Colors.orangeAccent,
                 ),
-              SizedBox(width: 30,),
+                SizedBox(
+                  width: 30,
+                ),
                 OutlineButton(
-                  onPressed: (){
+                  onPressed: () {
                     if (_isRewardedAdReady) {
-                 RewardedVideoAd.instance.show();
-              }
+                      RewardedVideoAd.instance.show();
+                      return;
+                    }
+                     Navigator.of(context).pushNamed('/splash');
                   },
                   child: Text(
                     "Share results",
@@ -245,7 +241,6 @@ BannerAd _ibannerAd;
                   borderSide: BorderSide(width: 3.0, color: Colors.orange),
                   splashColor: Colors.orangeAccent,
                 ),
-               
               ],
             ),
           )
@@ -253,6 +248,7 @@ BannerAd _ibannerAd;
       ),
     );
   }
+
   void _moveToHome() {
     Navigator.pushNamedAndRemoveUntil(
         _scaffoldKey.currentContext, '/', (_) => false);

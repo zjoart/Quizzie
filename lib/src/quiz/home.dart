@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:joart/src/ads/helper.dart';
+import 'package:joart/src/errors/apierror.dart';
+import 'dart:io';
+
+import 'package:joart/src/resources/apigetter.dart';
 
 class QuizzHome extends StatefulWidget {
   @override
@@ -8,15 +12,16 @@ class QuizzHome extends StatefulWidget {
 }
 
 class _QuizzHomeState extends State<QuizzHome> {
-   BannerAd _bannerAd;
+  BannerAd _bannerAd;
   bool _isRewardedAdReady;
 
-   void _loadBannerAd() {
+  void _loadBannerAd() {
     _bannerAd
       ..load()
       ..show(anchorType: AnchorType.top);
   }
-void _loadRewardedAd() {
+
+  void _loadRewardedAd() {
     RewardedVideoAd.instance.load(
       targetingInfo: MobileAdTargetingInfo(),
       adUnitId: AdManager.rewardedAdUnitId,
@@ -51,8 +56,7 @@ void _loadRewardedAd() {
     }
   }
 
-
-   @override
+  @override
   void initState() {
     super.initState();
     _initAdMob();
@@ -62,7 +66,7 @@ void _loadRewardedAd() {
     );
 
     _loadBannerAd();
-   
+
     _isRewardedAdReady = false;
 
     RewardedVideoAd.instance.listener = _onRewardedAdEvent;
@@ -75,11 +79,12 @@ void _loadRewardedAd() {
     RewardedVideoAd.instance.listener = null;
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-       backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.grey[200],
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,22 +100,23 @@ void _loadRewardedAd() {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
-                onTap: () {
-                  if (_isRewardedAdReady) {
-                 RewardedVideoAd.instance.show();}
-                  Navigator.of(context).pushNamed('/api');
-                  
-                },
+                onTap: startQuiz,
                 child: Container(
                   alignment: Alignment.center,
                   width: width,
                   height: 80,
                   decoration: BoxDecoration(
                       color: Colors.orange,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(50),)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(50),
+                      )),
                   child: Text(
                     'Start Quiz',
-                    style: TextStyle(fontSize: 30.0,fontWeight: FontWeight.w700, color: Colors.white, fontFamily: 'Montserrat-Medium'),
+                    style: TextStyle(
+                        fontSize: 30.0,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontFamily: 'Montserrat-Medium'),
                   ),
                 ),
               ),
@@ -120,11 +126,36 @@ void _loadRewardedAd() {
       ),
     );
   }
+
   Future<void> _initAdMob() {
     return FirebaseAdMob.instance.initialize(appId: AdManager.appId);
   }
 
   void startQuiz() {
     //will pass in different functions to load error,waiting and quizpage view
+    try {
+      Navigator.pop(context);
+      if (_isRewardedAdReady) {
+        RewardedVideoAd.instance.show();
+        return;
+      }
+      Navigator.push(context, MaterialPageRoute(builder: (_) => QuizApi()));
+    } on SocketException catch (_) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => ErrorPage(
+                    message:
+                        "Can't reach the servers, \n Please check your internet connection.",
+                  )));
+    } catch (e) {
+      print(e.message);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => ErrorPage(
+                    message: "Unexpected error trying to connect to the API",
+                  )));
+    }
   }
 }
