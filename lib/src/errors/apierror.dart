@@ -20,7 +20,7 @@ class ErrorPage extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Colors.orange,
-              Colors.orangeAccent
+              Colors.orange[700]
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter

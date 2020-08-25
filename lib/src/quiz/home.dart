@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:joart/src/ads/helper.dart';
-import 'package:joart/src/errors/apierror.dart';
-import 'dart:io';
+
 
 import 'package:joart/src/resources/apigetter.dart';
 
@@ -39,12 +38,15 @@ class _QuizzHomeState extends State<QuizzHome> {
       case RewardedVideoAdEvent.closed:
         setState(() {
           _isRewardedAdReady = false;
+          
         });
+        QuizApi();
         _loadRewardedAd();
         break;
       case RewardedVideoAdEvent.failedToLoad:
         setState(() {
           _isRewardedAdReady = false;
+      
         });
         print('Failed to load a rewarded ad');
         break;
@@ -83,45 +85,70 @@ class _QuizzHomeState extends State<QuizzHome> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+     double height = MediaQuery.of(context).size.height/100;
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.orange[700],
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.all(100.0)),
-          Padding(
-            padding: const EdgeInsets.only(left: 30, right: 30),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset('images/quiz.jpg')),
+          CircleAvatar(
+           maxRadius: 100,
+           minRadius: 50,
+            child: Image.asset('images/quiz.png'),
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                onTap: startQuiz,
-                child: Container(
-                  alignment: Alignment.center,
-                  width: width,
-                  height: 80,
-                  decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(50),
-                      )),
-                  child: Text(
-                    'Start Quiz',
-                    style: TextStyle(
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        fontFamily: 'Montserrat-Medium'),
-                  ),
+          SizedBox(
+            height: height < 500 ? 25 : 50,
+          ),
+          Text(
+            'General Quiz',
+            style: width > 500 ? TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'impact',
+                color: Colors.white) : TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'impact',
+                color: Colors.white)
+          ),
+          Text(
+              'Test Your Self',
+              style:  width > 500 ? TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat-Medium',
+                color: Colors.white) : TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat-Medium',
+                color: Colors.white)
+            ),
+          SizedBox(
+            height: height < 500 ? 50 : 100,
+          ),
+          Padding(
+            padding: width < 600 ? const EdgeInsets.only(left: 50, right: 50) : const EdgeInsets.only(left: 30, right: 30),
+            child: GestureDetector(
+              onTap: startQuiz,
+              child: Container(
+                alignment: Alignment.center,
+                width: width,
+                height: 60,
+                decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(50)),
+                child: Text(
+                  'Start Quiz',
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'impact',
+                      color: Colors.white),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -132,30 +159,9 @@ class _QuizzHomeState extends State<QuizzHome> {
   }
 
   void startQuiz() {
-    //will pass in different functions to load error,waiting and quizpage view
-    try {
-      Navigator.pop(context);
       if (_isRewardedAdReady) {
         RewardedVideoAd.instance.show();
-        return;
       }
       Navigator.push(context, MaterialPageRoute(builder: (_) => QuizApi()));
-    } on SocketException catch (_) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) => ErrorPage(
-                    message:
-                        "Can't reach the servers, \n Please check your internet connection.",
-                  )));
-    } catch (e) {
-      print(e.message);
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (_) => ErrorPage(
-                    message: "Unexpected error trying to connect to the API",
-                  )));
     }
-  }
 }
