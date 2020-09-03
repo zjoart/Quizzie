@@ -5,6 +5,26 @@ import 'package:flutter/material.dart';
 import 'package:joart/src/ads/helper.dart';
 import 'package:joart/src/quiz/result.dart';
 import 'package:joart/src/resources/data.dart';
+import 'package:html_unescape/html_unescape.dart';
+
+class SizeConfig {
+  static double yMargin(BuildContext context, double height) {
+    double screenHeight = MediaQuery.of(context).size.height / 100;
+    return height * screenHeight;
+  }
+
+  static double xMargin(BuildContext context, double width) {
+    double screenWidth = MediaQuery.of(context).size.width / 100;
+    return width * screenWidth;
+  }
+
+  static double textSize(BuildContext context, double textSize) {
+    double screenHeight = MediaQuery.of(context).size.height / 100;
+    double screenWidth = MediaQuery.of(context).size.width / 100;
+    if (screenWidth > screenHeight) return textSize * screenHeight;
+    return textSize * screenWidth;
+  }
+}
 
 // ignore: must_be_immutable
 class QuizPage extends StatefulWidget {
@@ -20,12 +40,6 @@ class _QuizPageState extends State<QuizPage> {
   InterstitialAd _interstitialAd;
   bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
-
-  void _loadBannerAd() {
-    _bannerAd
-      ..load()
-      ..show(anchorType: AnchorType.bottom);
-  }
 
   void _loadInterstitialAd() {
     _interstitialAd.load();
@@ -50,6 +64,7 @@ class _QuizPageState extends State<QuizPage> {
         setState(() {
           _isRewardedAdReady = false;
         });
+        ResultPage(marks: marks);
         _loadRewardedAd();
         break;
       case RewardedVideoAdEvent.failedToLoad:
@@ -84,17 +99,24 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   final TextStyle _questionStyle = TextStyle(
-      fontSize: 18.0, fontWeight: FontWeight.w500, color: Colors.white);
+      fontSize: 25.0, fontWeight: FontWeight.w500, color: Colors.white);
   int _currentIndex = 0;
 
-  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
+  //final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   final List<Results> results;
   _QuizPageState(this.results);
 
-  Color colortoshow = Colors.orange;
   Color right = Colors.green;
-  Color wrong = Colors.red;
-  Color btnColor = Colors.white;
+  Color btnColor1 = Colors.white;
+  Color btnColor2 = Colors.white;
+  Color btnColor3 = Colors.white;
+  Color btnColor4 = Colors.white;
+
+  Color wrong1 = Colors.red;
+  Color wrong2 = Colors.red;
+  Color wrong3 = Colors.red;
+  Color wrong4 = Colors.red;
+
   int marks = 0;
 
   int timer = 30;
@@ -105,18 +127,14 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void initState() {
     starttimer();
-    _bannerAd = BannerAd(
-      adUnitId: AdManager.bannerAdUnitId,
-      size: AdSize.smartBanner,
-    );
 
-    _loadBannerAd();
     _isInterstitialAdReady = false;
 
     _interstitialAd = InterstitialAd(
       adUnitId: AdManager.interstitialAdUnitId,
       listener: _onInterstitialAdEvent,
     );
+    _loadInterstitialAd();
     _isRewardedAdReady = false;
 
     RewardedVideoAd.instance.listener = _onRewardedAdEvent;
@@ -161,43 +179,51 @@ class _QuizPageState extends State<QuizPage> {
     Results question = widget.results[_currentIndex];
     final List<dynamic> options = question.allAnswers;
     double width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      key: _key,
-      body: Column(
-        children: <Widget>[
-          ClipPath(
-            clipper: CircularClipper(),
-            child: Container(
-              width: width,
-              height: 370,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.orange[500],
-                  Colors.orange,
-                ],
-              )),
+   // double height = MediaQuery.of(context).size.height;
+    return WillPopScope(
+      onWillPop: () {
+        return showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text(
+                    "Quizzie",
+                  ),
+                  content: Text("You Can't Go Back At This Stage."),
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Ok',
+                      ),
+                    )
+                  ],
+                ));
+      },
+      child: Scaffold(
+        backgroundColor: Colors.orange[700],
+        body: Column(
+          children: <Widget>[
+            Container(
+              width: SizeConfig.xMargin(context, width),
+              height: SizeConfig.yMargin(context, 35),
+              color: Colors.orange[700],
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                // mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Padding(padding: EdgeInsets.all(50.0)),
+                  SizedBox(height: SizeConfig.yMargin(context, 10)),
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    padding: const EdgeInsets.only(left: 30, right: 20),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        new Text(
-                          "Question ${_currentIndex + 1} of ${results.length}",
-                          style: new TextStyle(
-                              fontSize: 25.0, color: Colors.white),
+                        Text(
+                          'Question ${_currentIndex + 1} of ${results.length}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: SizeConfig.textSize(context, 4),
+                          ),
                         ),
-                        SizedBox(
-                          width: 180,
-                        ),
+                        SizedBox(width: SizeConfig.xMargin(context, 35)),
                         Expanded(
                           flex: 1,
                           child: Container(
@@ -205,8 +231,9 @@ class _QuizPageState extends State<QuizPage> {
                               child: Text(
                                 showtimer,
                                 style: TextStyle(
-                                    fontSize: 30.0,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: SizeConfig.textSize(context, 5),
+                                    fontFamily: 'impact',
+                                    // fontWeight: FontWeight.w700,
                                     color: Colors.white),
                               ),
                             ),
@@ -215,169 +242,299 @@ class _QuizPageState extends State<QuizPage> {
                       ],
                     ),
                   ),
-                  Padding(padding: EdgeInsets.all(25.0)),
+                  SizedBox(
+                    height: SizeConfig.yMargin(context, 4),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 30, right: 30),
                     child: Text(
-                      widget.results[_currentIndex].question,
+                      HtmlUnescape()
+                          .convert(widget.results[_currentIndex].question),
                       softWrap: true,
                       style: width > 800
-                          ? _questionStyle.copyWith(fontSize: 30.0)
-                          : _questionStyle.copyWith(fontSize: 20.0),
+                          ? _questionStyle.copyWith(
+                              fontSize: SizeConfig.textSize(context, 7),
+                            )
+                          : _questionStyle.copyWith(
+                              fontSize: SizeConfig.textSize(context, 5)),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Container(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              ...options.map(
-                (option) => choiceButton("a", option),
-              )
-            ],
-          )),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (clickedButton = true) _nextSubmit();
-                  });
-                },
-                child: Container(
-                  width: width,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(30)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.orange[500],
-                          Colors.orange,
-                        ],
-                      )),
-                  child: Center(
-                    child: Text(
-                      _currentIndex == (widget.results.length - 1)
-                          ? "Submit"
-                          : "Next",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+            Expanded(
+              child: Container(
+                width: SizeConfig.xMargin(context, width),
+                height: SizeConfig.yMargin(context, 65),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50)),
+                    color: Colors.white),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    choiceButton(HtmlUnescape().convert(options[0])),
+                    choiceButton1(HtmlUnescape().convert(options[1])),
+                    choiceButton2(HtmlUnescape().convert(options[2])),
+                    choiceButton3(HtmlUnescape().convert(options[3])),
+                    SizedBox(
+                      height: SizeConfig.yMargin(context, 4),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (clickedButton == true) _nextSubmit();
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: SizeConfig.xMargin(context, width),
+                          height: SizeConfig.yMargin(context, 7),
+                          decoration: BoxDecoration(
+                              color: Colors.orange[700],
+                              borderRadius: BorderRadius.circular(50)),
+                          child: Text(
+                            _currentIndex == (widget.results.length - 1)
+                                ? "Submit"
+                                : "Next",
+                            style: TextStyle(
+                                fontSize:SizeConfig.textSize(context, 7),
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   bool clickedButton = false;
-  bool isCorrect = false;
-  void checkanswer(String b, String k) {
-    if (clickedButton == false) {
-      if (b == (widget.results[_currentIndex].correctAnswer)) {
-        marks = marks + 5;
-        print(' correct');
-        setState(() {
-          colortoshow = right;
-          clickedButton = true;
-          isCorrect = true;
-        });
-      } else {
-        print(' incorrect');
-        setState(() {
-          colortoshow = wrong;
-          clickedButton = true;
-        });
-      }
-    }
-    setState(() {
-      btnColor = colortoshow;
-      canceltimer = true;
-    });
-  }
-
   void _nextSubmit() {
     canceltimer = false;
     timer = 30;
-
     setState(() {
-      if (_currentIndex < (widget.results.length - 1)) {
-        _currentIndex++;
-      } else {
+      if (_currentIndex == (widget.results.length - 1)) {
         if (_isRewardedAdReady) {
           RewardedVideoAd.instance.show();
         }
-         Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => ResultPage(marks: marks),
-          ));
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ResultPage(marks: marks),
+        ));
+      } else if (_currentIndex < (widget.results.length - 1)) {
+        btnColor1 = Colors.white;
+        btnColor2 = Colors.white;
+        btnColor3 = Colors.white;
+        btnColor4 = Colors.white;
+        _currentIndex++;
+        clickedButton = false;
+      } else {
+        _currentIndex += 0;
       }
-      btnColor = Colors.white;
-    });
-    if (_currentIndex > 10) _loadInterstitialAd();
-    setState(() {
-      if (_currentIndex > 15) {
-        if (_isInterstitialAdReady) {
+
+      if (_isInterstitialAdReady) {
+        if (_currentIndex > 10) {
           _interstitialAd.show();
+          return;
+        }
+        if (_currentIndex > 20) {
+          _interstitialAd.show();
+          return;
+        }
+        if (_currentIndex > 30) {
+          _interstitialAd.show();
+          return;
+        }
+        if (_currentIndex > 40) {
+          _interstitialAd.show();
+          return;
         }
       }
     });
     starttimer();
   }
 
-  Widget choiceButton(String k, String b) {
+  Widget choiceButton(String b) {
+    //double height = MediaQuery.of(context).size.height;
     return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 10),
-      child: Card(
-        elevation: 3,
-        child: MaterialButton(
-          onPressed: () => checkanswer(b, k),
-          child: Text(
-            b,
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: MaterialButton(
+        elevation: 5,
+        onPressed: () {
+          if (clickedButton == false) {
+            if (b == (widget.results[_currentIndex].correctAnswer)) {
+              marks = marks + 2;
+              print('correct');
+              setState(() {
+                clickedButton = true;
+                btnColor1 = right;
+              });
+            } else {
+              print(' incorrect');
+              setState(() {
+                clickedButton = true;
+                btnColor1 = wrong1;
+              });
+            }
+          }
+          setState(() {
+            canceltimer = true;
+          });
+          Timer(Duration(seconds: 1), _nextSubmit);
+        },
+        child: Text(
+          b,
+          style: TextStyle(
+            fontSize: SizeConfig.textSize(context, 4.2),
+            //color: Colors.white,
           ),
-          color: btnColor,
-          splashColor: Colors.orangeAccent,
-          highlightColor: Colors.orangeAccent,
-          height: 70.0,
-          //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),
+        color: btnColor1,
+        height: SizeConfig.yMargin(context, 8),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
       ),
     );
   }
-}
 
-class CircularClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.lineTo(0, size.height - 80);
-    path.quadraticBezierTo(
-        size.width / 2, size.height, size.width, size.height - 80);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
+  Widget choiceButton1(String b) {
+   // double height = MediaQuery.of(context).size.height;
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: MaterialButton(
+        elevation: 5,
+        onPressed: () {
+          if (clickedButton == false) {
+            if (b == (widget.results[_currentIndex].correctAnswer)) {
+              marks = marks + 2;
+              print('correct');
+              setState(() {
+                clickedButton = true;
+                btnColor2 = right;
+              });
+            } else {
+              print(' incorrect');
+              setState(() {
+                clickedButton = true;
+                btnColor2 = wrong2;
+              });
+            }
+          }
+          setState(() {
+            canceltimer = true;
+          });
+          Timer(Duration(seconds: 1), _nextSubmit);
+        },
+        child: Text(
+          b,
+          style: TextStyle(
+            fontSize: SizeConfig.textSize(context, 4.2),
+            // color: Colors.white,
+          ),
+        ),
+        color: btnColor2,
+        height:SizeConfig.yMargin(context, 8),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      ),
+    );
   }
 
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return false;
+  Widget choiceButton2(String b) {
+    //double height = MediaQuery.of(context).size.height;
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 20),
+      child: MaterialButton(
+        elevation: 5,
+        onPressed: () {
+          if (clickedButton == false) {
+            if (b == (widget.results[_currentIndex].correctAnswer)) {
+              marks = marks + 2;
+              print('correct');
+              setState(() {
+                clickedButton = true;
+                btnColor3 = right;
+              });
+            } else {
+              print(' incorrect');
+              setState(() {
+                clickedButton = true;
+                btnColor3 = wrong3;
+              });
+            }
+          }
+          setState(() {
+            canceltimer = true;
+          });
+          Timer(Duration(seconds: 1), _nextSubmit);
+        },
+        child: Text(
+          b,
+          style: TextStyle(
+            fontSize: SizeConfig.textSize(context, 4.2),
+          ),
+        ),
+        color: btnColor3,
+        height: SizeConfig.yMargin(context, 8),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      ),
+    );
+  }
+
+  Widget choiceButton3(String b) {
+    //double height = MediaQuery.of(context).size.height;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 50,
+        right: 50,
+      ),
+      child: MaterialButton(
+        elevation: 5,
+        onPressed: () {
+          if (clickedButton == false) {
+            if (b == (widget.results[_currentIndex].correctAnswer)) {
+              marks = marks + 2;
+              print('correct');
+              setState(() {
+                clickedButton = true;
+                btnColor4 = right;
+              });
+            } else {
+              print('incorrect');
+              setState(() {
+                clickedButton = true;
+                btnColor4 = wrong4;
+              });
+            }
+          }
+          setState(() {
+            canceltimer = true;
+          });
+          Timer(Duration(seconds: 1), _nextSubmit);
+        },
+        child: Text(
+          b,
+          style: TextStyle(
+            fontSize:SizeConfig.textSize(context, 4.2),
+          ),
+        ),
+        color: btnColor4,
+        height:SizeConfig.yMargin(context, 8),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+      ),
+    );
   }
 }

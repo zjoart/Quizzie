@@ -1,42 +1,30 @@
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:joart/src/ads/helper.dart';
-
-import 'home.dart';
-
-
+import 'package:joart/src/quiz/home.dart';
+import 'package:joart/src/resources/apigetter.dart';
 
 // ignore: must_be_immutable
 class ResultPage extends StatefulWidget {
   int marks;
-  ResultPage ({Key key , @required this.marks}) : super(key : key);
+  ResultPage({Key key, @required this.marks}) : super(key: key);
   @override
   _ResultPageState createState() => _ResultPageState(marks);
 }
 
-class _ResultPageState extends State<ResultPage > {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+class _ResultPageState extends State<ResultPage> {
+ 
+  BannerAd _bannerAd;
 
-BannerAd _bannerAd;
-BannerAd _ibannerAd;
-  InterstitialAd _interstitialAd;
-  bool _isInterstitialAdReady;
   bool _isRewardedAdReady;
 
   void _loadBannerAd() {
     _bannerAd
       ..load()
-      ..show(anchorType: AnchorType.bottom);
-  }
-  void _iloadBannerAd() {
-    _ibannerAd
-      ..load()
       ..show(anchorType: AnchorType.top);
   }
 
-  void _loadInterstitialAd() {
-    _interstitialAd.load();
-  }
+ 
 
   void _loadRewardedAd() {
     RewardedVideoAd.instance.load(
@@ -73,53 +61,33 @@ BannerAd _ibannerAd;
     }
   }
 
-  void _onInterstitialAdEvent(MobileAdEvent event) {
-    switch (event) {
-      case MobileAdEvent.loaded:
-        _isInterstitialAdReady = true;
-        break;
-      case MobileAdEvent.failedToLoad:
-        _isInterstitialAdReady = false;
-        print('Failed to load an interstitial ad');
-        break;
-      case MobileAdEvent.closed:
-        _moveToHome();
-        break;
-      default:
-      // do nothing
-    }
-  }
+ 
 
+  double percent = 0;
+  int finalscore = 100;
   @override
   void initState() {
     super.initState();
-    if(marks < 20){
+    percent = ((marks / finalscore) * 100);
+    if (marks < 35) {
       image = images[2];
-      message = "You Should Try Harder..\n" + "You Scored $marks";
-    }else if(marks < 35){
+      message =
+          "You Should Try Harder..\n" + "You Scored $marks\nThat's $percent%";
+    } else if (marks < 60) {
       image = images[1];
-      message = "You Can Do Better..\n" + "You Scored $marks";
-    }else{
+      message = "You Can Do Better..\n" + "You Scored $marks\nThat's $percent%";
+    } else {
       image = images[0];
-      message = "You Did Very Well..\n" + "You Scored $marks";
+      message = "You Did Very Well..\n" + "You Scored $marks\nThat's $percent%";
     }
     _bannerAd = BannerAd(
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.fullBanner,
     );
-     _ibannerAd = BannerAd(
-      adUnitId: AdManager.bannerAdUnitId,
-      size: AdSize.smartBanner,
-    );
 
     _loadBannerAd();
-    _iloadBannerAd();
-    _isInterstitialAdReady = false;
 
-    _interstitialAd = InterstitialAd(
-      adUnitId: AdManager.interstitialAdUnitId,
-      listener: _onInterstitialAdEvent,
-    );
+    
     _isRewardedAdReady = false;
 
     RewardedVideoAd.instance.listener = _onRewardedAdEvent;
@@ -129,7 +97,6 @@ BannerAd _ibannerAd;
   @override
   void dispose() {
     _bannerAd?.dispose();
-    _interstitialAd?.dispose();
     RewardedVideoAd.instance.listener = null;
     super.dispose();
   }
@@ -139,122 +106,95 @@ BannerAd _ibannerAd;
 
   List<String> images = [
     "images/success.png",
-    "images/good.png",
-    "images/bad.png",
+    "images/grade.png",
+    "images/sad.png",
   ];
 
   String message;
   String image;
 
- 
-
-  
   @override
   Widget build(BuildContext context) {
-     double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.orange[700],
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-            flex: 8,
-            child: Material(
-              elevation: 5.0,
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Material(
-                      child: Container(
-                        width: width,
-                        height: 300.0,
-                        child: ClipRect(
-                          child: Image(
-                            image: AssetImage(
-                              image,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 5.0,
-                        horizontal: 15.0,
-                      ),
-                      child: Center(
-                      child: Text(
-                        message,
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          fontFamily: "Montserrat-Medium",
-                        ),
-                      ),
-                    )
-                    ),
-                  ],
-                ),
+          Card(
+            elevation: 5,
+            child: Container(
+              color: Colors.orange[700],
+              width: width,
+              child: Column(
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 100,
+                    child: Image.asset(image),
+                  ),
+                  SizedBox(height: 30),
+                  Text(
+                    message,
+                    style: TextStyle(fontSize: 25.0, color: Colors.white),
+                  ),
+                  SizedBox(height: 50),
+                ],
               ),
-            ),            
-          ),
-          Expanded(
-            flex: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                OutlineButton(
-                  onPressed: () async {
-                   _loadInterstitialAd();
-                if (_isInterstitialAdReady) {
-                  _interstitialAd.show();
-               
-                }
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => QuizzHome(),
-                    ));
-                  },
-                  child: Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  borderSide: BorderSide(width: 3.0, color: Colors.orange),
-                  splashColor: Colors.orangeAccent,
-                ),
-              SizedBox(width: 30,),
-                OutlineButton(
-                  onPressed: (){
-                    if (_isRewardedAdReady) {
-                 RewardedVideoAd.instance.show();
-              }
-                  },
-                  child: Text(
-                    "Share results",
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  borderSide: BorderSide(width: 3.0, color: Colors.orange),
-                  splashColor: Colors.orangeAccent,
-                ),
-               
-              ],
             ),
+          ),
+          SizedBox(height: 50),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              OutlineButton(
+                onPressed: () {
+                  if (_isRewardedAdReady) {
+                    RewardedVideoAd.instance.show();
+                    return;
+                  }
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => QuizApi(),
+                  ));
+                },
+                child: Text(
+                  marks < 35 ? "Try Again" : "Reset Quiz",
+                  style: TextStyle(fontSize: 18.0, color: Colors.white),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 25.0,
+                ),
+                borderSide: BorderSide(width: 3.0, color: Colors.white),
+                splashColor: Colors.orangeAccent,
+              ),
+              SizedBox(
+                width: 30,
+              ),
+              OutlineButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => QuizzHome(),
+                  ));
+                },
+                child: Text(
+                  "Home",
+                  style: TextStyle(fontSize: 18.0, color: Colors.white),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 25.0,
+                ),
+                borderSide: BorderSide(width: 3.0, color: Colors.white),
+                splashColor: Colors.orangeAccent,
+              ),
+            ],
           )
         ],
       ),
     );
   }
-  void _moveToHome() {
-    Navigator.pushNamedAndRemoveUntil(
-        _scaffoldKey.currentContext, '/', (_) => false);
-  }
+
+
 }
