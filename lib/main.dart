@@ -4,15 +4,14 @@ import 'package:joart/src/quiz/home.dart';
 import 'package:joart/src/resources/apigetter.dart';
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:device_preview/device_preview.dart';
+//import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
-  runApp( DevicePreview(
-    builder: (context) =>MyApp()));
+  runApp(MyApp());
 }
 // DevicePreview(
    // builder: (context) =>

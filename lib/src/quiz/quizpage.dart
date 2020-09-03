@@ -253,10 +253,10 @@ class _QuizPageState extends State<QuizPage> {
                       softWrap: true,
                       style: width > 800
                           ? _questionStyle.copyWith(
-                              fontSize: SizeConfig.textSize(context, 7),
+                              fontSize: SizeConfig.textSize(context, 6),
                             )
                           : _questionStyle.copyWith(
-                              fontSize: SizeConfig.textSize(context, 5)),
+                              fontSize: SizeConfig.textSize(context, 4.5)),
                     ),
                   ),
                 ],
